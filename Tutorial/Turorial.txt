@@ -1,0 +1,274 @@
+植物工場向けラズパイチュートリアル　　2021/05/13
+
+１．キーボードの確認をしよう
+Geanyを起動
+ラズパイー＞プログラミングー＞Geany
+半角/全角キーでアルファベット、カナが切り替わるか確認
+タスクトレイ（右上）に”あ”というアイコンがあるか確認しょう
+タブ数を確認しよう。TAB=4半角スペースになっているか？
+なっていない場合は次のようにして設定する
+メニューー＞編集ー＞設定
+エディター＞インデント
+幅=4、形式=空白
+適応
+メニュープロジェクトー＞標準インデントを適応
+
+
+
+２．SDカードの負荷軽減設定をしよう
+
+LXTerminalを起動、以下コマンドを入力（スーパーユーザ権限でnanoというエディタソフトを使ってetcフォルダのfstabというファイルを編集）
+$ sudo nano /etc/fstab
+以下の２行を追加
+tmpfs  /tmp  tmpfs  defaults,size=256m,noatime,mode=1777  0  0
+tmpfs  /var/tmp  tmpfs  defaults,size=16m,noatime,mode=1777  0  0
+終了し保存（ Ctrl + x　->  y )
+これでtmpフォルダと/var/tmpフォルダがSDカードから内部メモリに配置が変更になった
+
+LXTerminalに以下コマンドを入力
+$ sudo nano /etc/rsyslog.conf
+不要なログ保存処理を削除する（#でコメントアウト）
+/********************************************************************/
+daemon.*                       -/var/log/daemon.log
+kern.*                         -/var/log/kern.log
+lpr.*                          -/var/log/lpr.log
+mail.*                         -/var/log/mail.log
+user.*                         -/var/log/user.log
+
+mail.info                      -/var/log/mail.info
+mail.warn                      -/var/log/mail.warn
+mail.err                       /var/log/mail.err
+
+*.=debug;\
+       auth,authpriv.none;\
+       news.none;mail.none     -/var/log/debug
+/********************************************************************/
+
+
+
+
+３．gpioコマンド使ってみよう
+ラズパイの各ポートの状態確認、制御が出来る。LXTerminalから以下コマンドを入力
+$ sudo gpio readall
+失敗するはず。
+gpioコマンドが使えるようにするためWiringPiをアップデート
+LXTerminalを起動、以下コマンドを入力
+$ cd /tmp
+$ wget https://project-downloads.drogon.net/wiringpi-latest.deb
+$ sudo dpkg -i wiringpi-latest.deb
+$ sudo rm wiringpi-latest.deb
+$ sudo gpio readall
+ +-----+-----+---------+------+---+---Pi 4B--+---+------+---------+-----+-----+
+ | BCM | wPi |   Name  | Mode | V | Physical | V | Mode | Name    | wPi | BCM |
+ +-----+-----+---------+------+---+----++----+---+------+---------+-----+-----+
+ |     |     |    3.3v |      |   |  1 || 2  |   |      | 5v      |     |     |
+ |   2 |   8 |   SDA.1 | ALT0 | 1 |  3 || 4  |   |      | 5v      |     |     |
+ |   3 |   9 |   SCL.1 | ALT0 | 1 |  5 || 6  |   |      | 0v      |     |     |
+ |   4 |   7 | GPIO. 7 |   IN | 1 |  7 || 8  | 1 | IN   | TxD     | 15  | 14  |
+ |     |     |      0v |      |   |  9 || 10 | 1 | IN   | RxD     | 16  | 15  |
+ |  17 |   0 | GPIO. 0 |   IN | 0 | 11 || 12 | 0 | IN   | GPIO. 1 | 1   | 18  |
+ |  27 |   2 | GPIO. 2 |   IN | 0 | 13 || 14 |   |      | 0v      |     |     |
+ |  22 |   3 | GPIO. 3 |   IN | 0 | 15 || 16 | 0 | IN   | GPIO. 4 | 4   | 23  |
+ |     |     |    3.3v |      |   | 17 || 18 | 0 | IN   | GPIO. 5 | 5   | 24  |
+ |  10 |  12 |    MOSI |   IN | 0 | 19 || 20 |   |      | 0v      |     |     |
+ |   9 |  13 |    MISO |   IN | 0 | 21 || 22 | 1 | IN   | GPIO. 6 | 6   | 25  |
+ |  11 |  14 |    SCLK |   IN | 0 | 23 || 24 | 1 | IN   | CE0     | 10  | 8   |
+ |     |     |      0v |      |   | 25 || 26 | 1 | IN   | CE1     | 11  | 7   |
+ |   0 |  30 |   SDA.0 |   IN | 1 | 27 || 28 | 1 | IN   | SCL.0   | 31  | 1   |
+ |   5 |  21 | GPIO.21 |   IN | 1 | 29 || 30 |   |      | 0v      |     |     |
+ |   6 |  22 | GPIO.22 |   IN | 1 | 31 || 32 | 0 | IN   | GPIO.26 | 26  | 12  |
+ |  13 |  23 | GPIO.23 |   IN | 0 | 33 || 34 |   |      | 0v      |     |     |
+ |  19 |  24 | GPIO.24 |   IN | 0 | 35 || 36 | 0 | IN   | GPIO.27 | 27  | 16  |
+ |  26 |  25 | GPIO.25 |   IN | 0 | 37 || 38 | 0 | IN   | GPIO.28 | 28  | 20  |
+ |     |     |      0v |      |   | 39 || 40 | 0 | IN   | GPIO.29 | 29  | 21  |
+ +-----+-----+---------+------+---+----++----+---+------+---------+-----+-----+
+ | BCM | wPi |   Name  | Mode | V | Physical | V | Mode | Name    | wPi | BCM |
+ +-----+-----+---------+------+---+---Pi 4B--+---+------+---------+-----+-----+
+
+SensorHATを使っているので、むやみにポートを制御して良いわけではない
+以下、SensorHATの回路図
+　https://www.raspberrypi.org/documentation/hardware/sense-hat/images/Sense-HAT-V1_0.pdf
+回路図を見るとSensorHATは各モジュールとI2C通信を行って制御していることが分かる。
+
+GPIO7が空きポートなのでGPIO7を制御する
+BCM（コアチップ）番号でポートを指定します。
+GPIO7のBCM番号は4になる
+LXTerminalから以下コマンドを入力
+$ gpio -g mode 4 out  #BMC4（GPIO7）OUT設定
+$ gpio readall        #確認
+$ gpio -g write 4 1   #HIGH(1)出力
+$ gpio -g read 4      #読み込み
+$ gpio -g write 4 0   #LOW(0)出力
+$ gpio -g read 4      #読み込み
+$ gpio -g mode 4 in   #BMC4（GPIO7）IN設定
+
+
+
+
+４．I2Cの接続を確認
+LXTerminalから以下コマンドを入力、アドレスMAPを表示する
+$ i2cdetect -y 1
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:          -- -- -- -- -- -- -- -- -- -- -- -- -- 
+10: -- -- -- -- -- -- -- -- -- -- -- -- 1c -- -- -- 
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+40: -- -- -- -- -- -- UU -- -- -- -- -- -- -- -- -- 
+50: -- -- -- -- -- -- -- -- -- -- -- -- 5c -- -- 5f 
+60: -- -- -- -- -- -- -- -- -- -- 6a -- -- -- -- -- 
+70: -- -- -- -- -- -- -- --   
+
+0x1c = LSM9DS1: Accelerometer and gyroscope
+0x5c = LPS25H: EMS pressure sensor: 260-1260 hPa absolute digital output barometer
+0x5f = HTS221: Capacitive digital sensor for relative humidity and temperature
+0x6a = LSM9DS1: Magnetic sensor
+0x46 = ATTINY88-MUR: UUとなっているがカーネルドライバ。LEDマトリクスとジョイスティックを制御するAVRマイコンに接続
+
+
+５．カメラの確認
+ラズパイカメラを有効にする。LXTerminalから以下コマンドを入力
+$ sudo raspi-config
+ Interfacing Options -> Camera -> Enable
+カメラの確認。LXTerminalから以下コマンドを入力
+$ vcgencmd get_camera
+ supported=1 detected=1
+ 1=successつまりサポートも検出もできている
+カメラ撮影の確認。LXTerminalから以下コマンドを入力 
+$ sudo raspistill -o image.jpg
+実行したフォルダにカメラ撮影した画像をimage.jpgとして保存できたらOK
+
+
+
+６．チュートリアルフォルダを作成する
+LXTerminalから以下コマンドを入力
+$ cd ~
+$ mkdir Work
+$ cd Work
+$ mkdir Tutorial
+左上のファイルマネージャーを起動し、フォルダが作成されていることを確認する
+
+
+
+７．ダウンロードしたチュートリアルファイルをWorkフォルダにコピーする
+ファイルマネージャーを使ってコピーしても良いし、コマンドcpを使ってコピーしても良い
+$ cp -a /home/pi/ダウンロード/Tutorial /home/pi/Work
+
+
+
+８．SensorHATを使ってPythonプログラムを動かそう
+以下のファイルをクリックする
+/home/pi/Work/Tutorial/SensorHat/1_OutputTemperature.py
+アプリケーションTonny IDEが起動
+
+Runボタンで実行
+Shellウィンドウに温度、湿度、気圧が出力される
+Stopボタンで停止
+
+デバッグボタンでデバッグ開始
+６行目にブレークポイントを設定する
+　ブレークポイントを設定（行番号をダブルクリック）
+　ブレークポイントを解除（行番号をダブルクリック）
+Resumeボタンでブレークポイントまで実行する
+Over、Intoボタンで処理を１行進める
+    Over    １行進める    
+    Into    関数なら中に関数内に入る。ただし、現在の設定では自身が作成した関数以外には入れない
+Variableウィンドウで変数の値が確認できることを確認する
+Stopボタンで停止
+
+print文、sleep関数の引数を変えて保存し、実行する
+（文法間違えてエラーを出すのも例として良い）
+
+
+
+９．SensorHATシミュレータを使ってみる
+以下変更をする
+from sense_hat import SenseHatー＞from sense_emu import SenseHat
+エミュレータを起動する
+ラズパイー＞プログラミングー＞Sense HAT Emulator
+Runボタンで実行
+Shellウィンドウに温度、湿度、気圧が出力される
+エミュレータのTemperature、Humidity、Pressureバーを変化させると温度、湿度、気圧も変化する
+Stopボタンで停止
+
+
+
+１０．VSCodeをインストールする
+Thonny IDEは使いにくいのでVSCodeを使う
+
+LXTerminalから以下コマンドを入力
+$ sudo apt install code -y
+ラズパイー＞プログラミングー＞Visual Studio Codeを選択
+Extensionという機能を使ってをpython、Jaspaneseインストールする
+左のExtensionアイコンをクリックするかCtrl+Shift+XでExtensionを実行
+検索から以下を探しinstallボタンをクリックしインストールする
+ Python 2021 @ Microsoft
+ Japanese Language Pack for Visual Studio Code 1.51.2
+左下にリスタートボタンが表示されるのでクリック
+
+
+１１．VSCodeでファイルを開く
+/home/pi/Work/Tutorial/SensorHat/1_OutputTemperature.py
+デバッグする
+各種センサのデバッグも行う
+/home/pi/Work/Tutorial/SensorHat/2_OutputGyroscope.py
+/home/pi/Work/Tutorial/SensorHat/3_OutputAccelerometer.py
+/home/pi/Work/Tutorial/SensorHat/4_OutputMagnetometer.py
+参考
+https://deviceplus.jp/hobby/raspberrypi_entry_045/
+
+
+１２．Sensor HAT LED出力を行う
+VSCodeでファイルを開く
+/home/pi/Work/Tutorial/SensorHat/5_SayHello.py
+デバッグする
+
+
+１３．Helloプログラムを起動時に自動で行う
+LXTerminalから以下コマンドを入力
+$ sudo nano /etc/rc.local
+"exit 0"の前に以下追記
+python3 /home/pi/Work/Tutorial/SensorHat/5_SayHello.py
+終了し保存（ Ctrl + x　->  y )
+ラズパイを再起動し、Helloと表示されるか確認
+
+１４．VSCodeで構成を行う
+今までファイル単体で実行してきたが、デバッグ時に実行形式を選んだり不便
+フォルダを開き構成管理できるようにする
+フォルダを開くで以下フォルダを開く
+/home/pi/Work/Tutorial/VSCode/1.SaySomething
+エクスプローラで.vscodeを一旦削除
+エクスプローラで1.SaySomethingを選択し、
+メニューー＞実行ー＞構成の追加を選択し、pythonを選択
+エクスプローラで.vscodeが新規作成される
+.vscode内のlaunch.jsonファイルが開くので、"console": "integratedTerminal"の前にに以下２行を追加
+            "justMyCode": false,                #追加
+            "args": ["Hello"],                  #追加
+            "console": "integratedTerminal"
+            
+"justMyCode": falseでimportしたコードもデバッグ出来るようになる
+"args": ["Hello"]は実行前にプログラムに渡す引数を指定している
+
+１５．他のSensorHatのコードを実行する
+/home/pi/Work/Tutorial/SensorHatをフォルダで開き、構成を追加する。
+"justMyCode": falseのみ追加
+以下を実行する
+6_PixelControl.py
+7_Dispay1Charactor.py
+8_OutputJoyStick.py
+9_DispayJoyStick.py
+
+以下暫定
+/*******************************************/
+１５．VSCodeからGitを使ってみる
+
+１６．カメラを使ったプログラムをデバッグする
+/home/pi/Work/Tutorial/Camera
+１７．Coralを使ったプログラムをデバッグする
+/home/pi/Work/Tutorial/Coral
+１８．Flaskを使ったプログラムをデバッグする
+/home/pi/Work/Tutorial/Flask
+１９．ＡＷＳを使ったプログラムをデバッグする
+/home/pi/Work/Tutorial/AWS
+/*******************************************/
+
+
