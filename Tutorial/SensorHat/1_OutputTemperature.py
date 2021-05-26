@@ -1,5 +1,5 @@
 from time import sleep
-from sense_emu import SenseHat
+from sense_hat import SenseHat
 
 sh = SenseHat()
 while True:
