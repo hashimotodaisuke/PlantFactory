@@ -258,7 +258,7 @@ python3 /home/pi/Work/Tutorial/SensorHat/5_SayHello.py
 8_OutputJoyStick.py
 9_DispayJoyStick.py
 
-１５．
+１６．
 Windows PC-ラズパイ間でBluetoothファイル転送するため、ラズパイにbluemanをインストールする
 $ sudo apt install blueman
 再起動。タスクトレイにBluetoothのアイコンが２つできる。丸いほうがblueman。
@@ -283,16 +283,16 @@ Windows PC側で保存フォルダを選択し、完了ボタンを押下する�
 ラズパイが音声デバイスとして認識されるため、接続しっぱなしだとPCとスピーカやマイクが使えなくなる
 転送が終了したら忘れずラズパイ側のbluemaでTurn Bluetooth Offする
 
-１６．カメラを使ったプログラムをデバッグする
+１７．カメラを使ったプログラムをデバッグする
 /home/pi/Work/Tutorial/Camera
-１７．Coralを使ったプログラムをデバッグする
+１８．Coralを使ったプログラムをデバッグする
 /home/pi/Work/Tutorial/Coral
-１８．Flaskを使ったプログラムをデバッグする
+１９．Flaskを使ったプログラムをデバッグする
 /home/pi/Work/Tutorial/Flask
-１９．ＡＷＳを使ったプログラムをデバッグする
+２０．ＡＷＳを使ったプログラムをデバッグする
 /home/pi/Work/Tutorial/AWS
 
-２０．VSCodeからGitを使ってみる
+２１．VSCodeからGitを使ってみる
 コード管理はGit使いたい
 参考
 https://backlog.com/ja/git-tutorial/

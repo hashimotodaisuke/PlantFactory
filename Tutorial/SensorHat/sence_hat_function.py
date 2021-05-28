@@ -7,3 +7,7 @@ def show_message_with_delay(message, delay):
         sh.show_letter(moji)
         sleep(delay)
 
+def show_message_reverse(message, delay):
+    for moji in reversed(message):
+        sh.show_letter(moji)
+        sleep(delay)
