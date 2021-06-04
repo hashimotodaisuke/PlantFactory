@@ -5,6 +5,7 @@ CV_WAITKEY_SPACE            = 32
 CV_WAITKEY_TAB              = 9
 
 cap = cv2.VideoCapture(0)
+# cap = cv2.VideoCapture('Shape.mp4')
 
 # Define the codec and create VideoWriter object
 fourcc = cv2.VideoWriter_fourcc(*'XVID')

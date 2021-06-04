@@ -5,9 +5,11 @@ CV_WAITKEY_SPACE            = 32
 CV_WAITKEY_TAB              = 9
 
 cap = cv2.VideoCapture(0)
+# cap = cv2.VideoCapture('Shape.mp4')
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 800)
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 600)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 800)
 isOpened = cap.isOpened()
+isOpened=True
 if isOpened==True:
 	while True:
 		result, frame = cap.read()

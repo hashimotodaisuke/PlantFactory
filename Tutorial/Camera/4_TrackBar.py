@@ -22,6 +22,8 @@ switch = '0 : OFF \n1 : ON'
 cv2.createTrackbar(switch, 'image',0,1,nothing)
 
 cap = cv2.VideoCapture(0)
+# cap = cv2.VideoCapture('Shape.mp4')
+
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 800)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 600)
 isOpened = cap.isOpened()
