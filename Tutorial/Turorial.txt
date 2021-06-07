@@ -285,8 +285,66 @@ Windows PC側で保存フォルダを選択し、完了ボタンを押下する�
 
 １７．カメラを使ったプログラムをデバッグする
 /home/pi/Work/Tutorial/Camera
+必要ライブラリをインストールする
+$ cd /home/pi/Work/Tutorial/Camera
+$ sudo ./opencv_install.sh
+opencv_install.shはシェルスクリプト。スクリプト内にはライブラリインストールの処理が記載されている
+実行するには./が必要（誤実行防止のため）
+
+OpenCvを使ってカメラ画像を表示しよう
+1_DisplayCamera
+OpenCvを使ってカメラ画像を保存しよう
+2_SaveMovie.py
+OpenCvを使って丸を描画しよう
+3_WriteCircle cv2.py
+OpenCvを使ってトラックバーを表示しよう
+4_TrackBar.py
+トラックバーを使ってカメラ画像の色を変化させよう
+5_TrackBarContorlCamera.py
+OpenCvを使って静止画を様々な色空間で表示させよう
+6_DispalyPicture.py
+OpenCvの輪郭検出を使ってタピオカを検出しよう
+7_DetectTapioka.py
+OpenCvの（円）特徴検出を使ってタピオカを検出しよう
+8_DetectTapioka2.py
+
 １８．Coralを使ったプログラムをデバッグする
 /home/pi/Work/Tutorial/Coral
+必要ライブラリをインストールする
+$ cd /home/pi/Work/Tutorial/Coral
+$ sudo ./EdgeTpuRuntime_install.sh
+
+チュートリアル１〜3は以下URLに従って行う
+https://coral.ai/docs/accelerator/get-started
+
+鳥の静止画から鳥の名前を推定しよう
+1_ClassifyBirds
+植物の静止画から植物の名前を推定しよう
+2_ClassifyPlant
+虫の静止から虫の名前を推定しよう
+3_ClassifyInsect
+
+チュートリアル4〜5は以下URLに従って行う
+https://coral.ai/examples/
+↓リンク
+https://github.com/google-coral/examples-camera
+↓リンク
+https://github.com/google-coral/examples-camera/tree/master/opencv
+
+顔検出をしよう
+4_FaceDetect
+物体検出をしよう
+5_ObjectDetect
+本サンプルコードはデフォルトで以下のモデルを使用
+  mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite 
+  mobilenet ssd v2は物体検出で検出できるラベルは90種類
+自身でモデルを作成することも可能
+  TensorFlow Liteモデル（.tflite file）を作成
+  Edge TPU CompilerでEdge TPUと互換性のあるファイルにコンパイルする
+  マニュアル https://coral.ai/docs/edgetpu/compiler/#system-requirements
+  日本語説明 https://qiita.com/huayecai/items/b7f53cbd5be19470394a
+
+
 １９．Flaskを使ったプログラムをデバッグする
 /home/pi/Work/Tutorial/Flask
 ２０．ＡＷＳを使ったプログラムをデバッグする
