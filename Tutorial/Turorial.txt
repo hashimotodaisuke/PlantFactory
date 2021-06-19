@@ -471,6 +471,85 @@ Coralあり検出。モデルはcnn_IntegerQuantization_edgetpu.tfliteを使用�
 
 １９．Flaskを使ったプログラムをデバッグする
 /home/pi/Work/Tutorial/Flask
+Flask（フラスク）はPythonのWebアプリケーションフレームワークで、
+小規模向けの簡単なWebアプリケーションを作るのに適しています。
+PythonにはいくつものWebアプリケーションフレームワークがあります。
+Djnago(ジャンゴ)やpyramid(ピラミッド)、bottleなどです。
+簡単に学習出来る、軽量ということでFlaskを選択しています。
+
+1_HelloWorld
+ウェブブラウザにHelloWorldを表示するプログラムです
+1_HelloWorld.pyを実行します。
+Webブラウザを開き以下URLを入力します
+ http://localhost:5000
+Hello Worldと表示されていることを確認したらWebブラウザを閉じます
+ターミナルを開き以下コマンドを入力します
+$ ifconfig
+ネットワーク情報を表示し、IPアドレスを取得します。
+ラズパイを無線接続している人はwlan0項目のinet、以下例だと192.168.1.10をメモします
+wlan0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 192.168.1.10  netmask 255.255.255.0  broadcast 192.168.1.255
+ラズパイを優先接続している人はeth0項目のinet、以下例だと169.254.109.150をメモします
+eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 169.254.109.150  netmask 255.255.0.0  broadcast 169.254.255.255
+ラズパイがつながっているネットワークのPCのブラウザを立ち上げます
+（VPN経由の社内PCはNG、WiFi接続しているならスマフォでもOK）
+　http://<メモしたIPアドレス>:5000
+Hello Worldと表示されていることを確認したらWebブラウザを閉じます
+1アクセスしか出来ないため、ラズパイ側のブラウザを開いていると、他端末での評価は出来ません。
+
+2_UseHtmlTemplate
+1_HelloWorld.pyではプログラム内に表示する文字を記載してました
+図とかグラフを表示するためにhtmlを表示するプログラムを実行します。
+フォルダ構成
+　2_UseHtmlTemplate.py   Flaskプログラムファイルです
+　templates              表示するhtmlファイルを保存するフォルダです
+　static                 表示する図や写真を保存するフォルダです
+プログラム内の@app.routeという記述は
+URLとFlaskの処理を対応づけることで、URLと関数を紐付けることが出来きるルーティングコマンドです。
+2_UseHtmlTemplateでは2つのルーティングコマンドがあります
+@app.route("/")の次にはURL”http://<IPアドレス>:<ポート番号>/”で実行される関数を記載
+@app.route("/index")の次にはURL”http://<IPアドレス>:<ポート番号>/index”で実行される関数を記載
+文字列を返すとブラウザ側ではその文字列を表示します。
+関数render_templateを返すとブラウザ側では引数のhtmlを表示します。
+
+3_RealTimeGraph
+サーバ（ラズパイ側）側で作ったグラフデータをWebSocketを使ってWebサーバでリアルタイムに表示更新します。
+gevent、websocketをインストールする
+$ ./Gevent_install.sh
+geventはネットワークプログラミングのためのライブラリです。
+geventはWSGI（Web Server Gateway Interface）をサポートします。
+WSGIはアプリケーションとWebサーバのインタフェースを定義する規格になります。
+
+WebSocketはWebサーバとWebブラウザの間で双方向通信できるようにするライブラリです。
+htmlでWebブラウザを開いたあとはサーバ側はwebsocketを使ってグラフデータだけを送信します（JSON形式）。
+Webブラウザはリアルタイムチャート作成にはd3.jsをベースにしたリアルタイムチャートライブラリであるEpochを使います。
+
+＜プログラム内の動き＞
+サーバはURL'/' が指定されると'index.html'を表示する
+'index.html'内でブラウザがサーバに/publishを送信
+サーバはURL'/publish'が指定されるとグラフデータをブラウザに送信する。1秒おきに繰り返して送信する
+ブラウザはグラフデータを受けるとEpochで表示する
+
+宿題
+　送信しているデータをSenor HATの温度、湿度、気圧センサーの値に変更してください
+
+4_ComeraStreaming
+カメラ動画をWebブラウザに表示します。
+カメラ動画はOpenCvでフレームに切り取られてレスポンスとして逐次送信されます。
+
+宿題
+　カメラ動画を画像検出した画像に変更してください
+
+5_SQL
+sqlalchemyをインストールします
+$ ./SqlalChemy_install.sh
+SQLAlchemyはObject Relational Mapper（ORM)ライブラリです。
+ORMはテーブルとクラスを1対1に対応させて，そのクラスのメソッド経由でデータを取得したり，変更したりできるようにする技術のことです。
+以下URLのDAY4を参照
+https://qiita.com/kiyokiyo_kzsby/items/0184973e9de0ea9011ed
+
+
 ２０．ＡＷＳを使ったプログラムをデバッグする
 /home/pi/Work/Tutorial/AWS
 
