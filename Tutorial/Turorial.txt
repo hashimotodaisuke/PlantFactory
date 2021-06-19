@@ -344,6 +344,130 @@ https://github.com/google-coral/examples-camera/tree/master/opencv
   マニュアル https://coral.ai/docs/edgetpu/compiler/#system-requirements
   日本語説明 https://qiita.com/huayecai/items/b7f53cbd5be19470394a
 
+写真データからモデルを作ろう
+6_MakeAnimalModel
+<注意>
+ラズパイでは手順(16)でインストールするライブラリがサポートされていません（その前に手順(14)で失敗してしまう）。
+そもそも学習は処理不可が重いのでラズパイでの実行はそもそも推奨されていません。
+今回は最新のTensorflowが用意されているGoogleのColaboratoryを使います。
+Colaboratoryを使うにはGoogleアカウントが必要です。
+
+<Colaboratoryを使う方法>
+(1)以下のURLにアクセス
+https://colab.research.google.com/notebooks/intro.ipynb?hl=ja
+(2)メニューのファイル->ノートブックを新規作成を選択
+(3)コード欄に以下を入力してshift＋enterで実行
+/***************************************************************/
+%pip install icrawler
+/***************************************************************/
+icrawlerは画像検索をWeb検索しダウンロードしてくれるPythonライブラリです。
+モデルの写真データをWebから集めるのに便利です。
+(4)コード欄に以下ファイルの内容を入力してshift＋enterで実行します
+　1_getPictue.py
+猫犬の画像をダウンロードする。実行が完了すると実行アイコンの"グルグル"が止まります
+左のファイルアイコンをクリックし、cat, dogフォルダが出来ており、写真データが入っていることを確認します
+(5)コード欄に以下ファイルの内容を入力してshift＋enterで実行します
+　2_makeData.py
+ダウンロードした写真を加工します
+左のファイルアイコンをクリックし、dog_cat.npyが出来ていることを確認します
+(6)コード欄に以下ファイルの内容を入力してshift＋enterで実行
+　3_makeModel.py
+写真データから機械学習モデルを作成します
+左のファイルアイコンをクリックし、cnn.h5が出来ていることを確認します
+(7)コード欄に以下ファイルの内容を入力してshift＋enterで実行
+　4_convertTflite.py
+Tfliteファイルに変換します。変換したファイルはcnn.tfliteという名前で保存されます。
+cnn.tfliteはedge TPU（Coral)用のファイルには変更できません
+(8)コード欄に以下ファイルの内容を入力してshift＋enterで実行
+　5_convertTflite.py
+整数量子化してTfliteファイルに変換します。。変換したファイルはcnn_IntegerQuantization_edgetpu.tfliteという名前で保存されます
+cnn_IntegerQuantization_edgetpu.tfliteはedge TPU（Coral)用のファイルには変更できます
+(9)コード欄に以下を入力してshift＋enterで実行
+/***************************************************************/
+!curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+!echo "deb https://packages.cloud.google.com/apt coral-edgetpu-stable main" | tee /etc/apt/sources.list.d/coral-edgetpu.list
+!apt-get update
+!apt-get install edgetpu-compiler	
+/***************************************************************/
+(10)コード欄に以下を入力してshift＋enterで実行
+/***************************************************************/
+!edgetpu_compiler cnn_IntegerQuantization.tflite
+/***************************************************************/
+(11)左のファイルアイコンをクリックし、以下ファイルが出来ていることを確認します
+　cnn.tflite
+　cnn_IntegerQuantization.tflite
+　cnn_IntegerQuantization_edgetpu.tflite
+ファイル表示がすぐに更新されないことがあります、そういう時は一度ファイル欄を閉じて再度開きましょう
+(12)以下ファイルをダウンロードします。ファイル欄のファイル右横をクリックし、ダウンロードを選択します
+　cnn.tflite
+　cnn_IntegerQuantization.tflite
+　cnn_IntegerQuantization_edgetpu.tflite
+ダウンロードした上記ファイルを次チュートリアルの7_ClassifyAnimalフォルダに移動しましょう。
+以上でチュートリアル6_MakeAnimalModelは終了です。
+以下ラズパイでの実行方法を参考に記載します。手順(34)で失敗しますので注意が必要です
+
+<ラズパイで実行（手順(34)で失敗するので注意）>
+(21)ターミナルを起動し以下コマンドで実行フォルダを変える
+$ cd /home/pi/Work/PlantFactory/Tutorial/Coral/6_MakeAnimalModel
+(22)ターミナルで以下コマンドを実行し、icrawlerをインストールします
+$ ./0_install_icrawler.sh
+(23)以下実行しvirtualenvをインストールする
+$ sudo pip3 install virtualenv
+virtualenvは仮想python環境を作れるライブラリです。
+tensorflowをインストールすると現在の開発環境を壊してしまうので仮想環境を作ります。
+(24)仮想環境を作ります
+$ virtualenv env
+$ source env/bin/activate
+(25)Tensorflowをダウンロードします。
+$ wget "https://raw.githubusercontent.com/PINTO0309/Tensorflow-bin/master/tensorflow-2.5.0-cp37-none-linux_armv7l_numpy1195_download.sh"
+$ sudo chmod 777 tensorflow-2.5.0-cp37-none-linux_armv7l_numpy1195_download.sh
+$ ./tensorflow-2.5.0-cp37-none-linux_armv7l_numpy1195_download.sh
+(26)Tensorflowに必要なライブラリをインストール準備します
+$ sudo nano /etc/apt/sources.list
+# deb-src の行の先頭の # を削除する
+(27)Tensorflowに必要なライブラリをインストールします
+$ sudo apt-get update; sudo apt-get dist-upgrade で古いパッケージを更新する
+$ sudo apt-get -y install curl python3-protobuf python3-termcolor python3-yaml python3-pydot python3-pyasn1 python3-pyasn1-modules python3-rsa python3-markdown python3-cachetools python3-future python3-dill python3-tqdm python3-pil python3-pip python3-wheel python3-setuptools python3-matplotlib python3-h5py python3-scipy python3-grpcio python3-requests-oauthlib python3-werkzeug python3-wrapt
+$ sudo apt-get build-dep h5py grpc python-wrapt
+$ sudo apt-get build-dep numpy || sudo apt-get build-dep python-numpy
+$ pip3 install numpy==1.19.5 && (CC=mpicc CXX=mpic++ pip3 install h5py==3.1.0) || pip3 install h5py==3.1.0
+$ sudo apt-get purge python3-wrapt 
+$ pip3 install -I pip 
+(28)Tensorflowをインストールします
+$ python3 -m pip install tensorflow-hub tensorflow-datasets tensorflow-2.5.0-cp37-none-linux_armv7l.whl
+(29)インストール終了したらターミナルを閉じます
+(30)ターミナルを起動し以下コマンドで実行フォルダを変え、仮想環境を立ち上げる
+$ cd /home/pi/Work/PlantFactory/Tutorial/Coral/6_MakeAnimalModel
+$ source env/bin/activate
+(31)1_getPictue.pyを実行し猫と犬の写真を集めます。本プログラム内ではicrawlerを使っています
+$ python3 1_getPictue.py
+　写真はcat、dogフォルダに入ります。
+(32)2_makeData.pyを実行し、写真データを加工します
+$ python3 2_makeData.py
+　加工したデータはdog_cat.npyという名前で保存されます
+(33)3_makeModel.pyを実行し、モデルを作ります
+$ python3 3_makeModel.py
+　作成したモデルはcnn.h5という名前で保存されます
+(34)4_convertTflite.pyを実行しTfliteファイルに変換します
+$ python3 4_convertTflite.py
+　変換したファイルはcnn.tfliteという名前で保存されます
+　cnn.tfliteはedge TPU（Coral)用のファイルには変更できません
+(35)5_convertTflite.pyを実行し、整数量子化してTfliteファイルに変換します
+$ python3 5_convertTflite.py
+　変換したファイルはcnn_IntegerQuantization_edgetpu.tfliteという名前で保存されます
+　cnn_IntegerQuantization_edgetpu.tfliteはedge TPU（Coral)用のファイルには変更できます
+(36)6_install_edgetpu-compiler.shを実行し、TPU（Coral)用ファイル変換ライブラリをインストールします
+$ ./6_install_edgetpu-compiler.sh
+(37)7_excute_edgetpu-compiler.shを実行し、TPU（Coral)用ファイル変換を行います
+$ ./7_excute_edgetpu-compiler.sh
+変換されたファイルはcnn_IntegerQuantization_edgetpu.tfliteという名前で保存されます
+
+6で作ったモデルを使って犬、猫を検出しよう
+7_ClassifyAnimal
+Coralなし検出。モデルはcnn.tfliteを使用。
+7_ClassifyAnimalWithoutCoral.py
+Coralあり検出。モデルはcnn_IntegerQuantization_edgetpu.tfliteを使用。
+7_ClassifyAnimal.py
 
 １９．Flaskを使ったプログラムをデバッグする
 /home/pi/Work/Tutorial/Flask
@@ -380,5 +504,8 @@ $ git commit -m "add new files"
 
 現在の状態を確認する
 $ git status
+
+ローカルレポジトリの修正を元に戻す
+$ git checkout [ファイル名]
 
 ファイル編集し、インデックス追加、コミット、ステータス確認を実施する

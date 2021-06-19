@@ -1,0 +1,1 @@
+edgetpu_compiler cnn_IntegerQuantization.tflite
