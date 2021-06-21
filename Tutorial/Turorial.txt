@@ -367,12 +367,12 @@ https://colab.research.google.com/notebooks/intro.ipynb?hl=ja
 (5)以下手順で実行フォルダをGoogleドライブ内に作成します。すでに実行フォルダを作成している場合は手順をスキップしてください。
 　コード欄に以下を入力してshift＋enterで実行します。
 /***************************************************************/
-!mkdir /content/drive/MyDrive/PlantFactoryTutorial
+%mkdir /content/drive/MyDrive/PlantFactoryTutorial
 /***************************************************************/
 (6)以下手順で実行フォルダに移動します。
 　コード欄に以下を入力してshift＋enterで実行します。
 /***************************************************************/
-!cd /content/drive/MyDrive/PlantFactoryTutorial
+%cd /content/drive/MyDrive/PlantFactoryTutorial
 /***************************************************************/
 (7)コード欄に以下を入力してshift＋enterで実行します。
 Colaboratory90分何もしない、または12時間経過でリセットされます。リセットされるとインストールしたライブラリも消えてしまうので再度インストールしてください。
