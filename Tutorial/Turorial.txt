@@ -1,4 +1,4 @@
-植物工場向けラズパイチュートリアル　　2021/05/13
+植物工場向けラズパイチュートリアル　　2021/06/21
 
 １．キーボードの確認をしよう
 Geanyを起動
@@ -347,7 +347,7 @@ https://github.com/google-coral/examples-camera/tree/master/opencv
 写真データからモデルを作ろう
 6_MakeAnimalModel
 <注意>
-ラズパイでは手順(16)でインストールするライブラリがサポートされていません（その前に手順(14)で失敗してしまう）。
+ラズパイでは手順(36)でインストールするライブラリがサポートされていません（その前に手順(34)で失敗してしまう）。
 そもそも学習は処理不可が重いのでラズパイでの実行はそもそも推奨されていません。
 今回は最新のTensorflowが用意されているGoogleのColaboratoryを使います。
 Colaboratoryを使うにはGoogleアカウントが必要です。
@@ -355,50 +355,69 @@ Colaboratoryを使うにはGoogleアカウントが必要です。
 <Colaboratoryを使う方法>
 (1)以下のURLにアクセス
 https://colab.research.google.com/notebooks/intro.ipynb?hl=ja
-(2)メニューのファイル->ノートブックを新規作成を選択
-(3)コード欄に以下を入力してshift＋enterで実行
+(2)メニューのファイル->ノートブックを新規作成を選択します。
+　左上のUntitled0.ipynbを選択し、ファイル名を変更します。
+　例　20210621_PlantFactoryTutorial.ipynb
+　すでにファイルを作成している場合はファイル->ファイルを開くで作成したファイルを選択してください。
+(3)以下手順でGPU設定をします。すでにGPU設定している場合は手順をスキップしてください。
+　メニューのランタイム->ランタイムのタイプを変更を選択、ハードウェアアクセラレータをNoneからGPUに変更し、保存ボタンを押下します。
+　　ハードウェアアクセラレータをGPUにしていないと処理時間がかかってしまいます
+(4)以下手順でドライブのマウントを行います。すでにドライブのマウントしている場合は手順をスキップしてください。
+　左のフィアルアイコンを押下し、フォルダツリーを表示し、ドライブのマウントアイコンを押下します
+(5)以下手順で実行フォルダをGoogleドライブ内に作成します。すでに実行フォルダを作成している場合は手順をスキップしてください。
+　コード欄に以下を入力してshift＋enterで実行します。
+/***************************************************************/
+!mkdir /content/drive/MyDrive/PlantFactoryTutorial
+/***************************************************************/
+(6)以下手順で実行フォルダに移動します。
+　コード欄に以下を入力してshift＋enterで実行します。
+/***************************************************************/
+!cd /content/drive/MyDrive/PlantFactoryTutorial
+/***************************************************************/
+(7)コード欄に以下を入力してshift＋enterで実行します。
+Colaboratory90分何もしない、または12時間経過でリセットされます。リセットされるとインストールしたライブラリも消えてしまうので再度インストールしてください。
 /***************************************************************/
 %pip install icrawler
 /***************************************************************/
 icrawlerは画像検索をWeb検索しダウンロードしてくれるPythonライブラリです。
 モデルの写真データをWebから集めるのに便利です。
-(4)コード欄に以下ファイルの内容を入力してshift＋enterで実行します
+(8)コード欄に以下ファイルの内容を入力してshift＋enterで実行します
 　1_getPictue.py
 猫犬の画像をダウンロードする。実行が完了すると実行アイコンの"グルグル"が止まります
 左のファイルアイコンをクリックし、cat, dogフォルダが出来ており、写真データが入っていることを確認します
-(5)コード欄に以下ファイルの内容を入力してshift＋enterで実行します
+(9)コード欄に以下ファイルの内容を入力してshift＋enterで実行します
 　2_makeData.py
 ダウンロードした写真を加工します
 左のファイルアイコンをクリックし、dog_cat.npyが出来ていることを確認します
-(6)コード欄に以下ファイルの内容を入力してshift＋enterで実行
+(10)コード欄に以下ファイルの内容を入力してshift＋enterで実行
 　3_makeModel.py
 写真データから機械学習モデルを作成します
 左のファイルアイコンをクリックし、cnn.h5が出来ていることを確認します
-(7)コード欄に以下ファイルの内容を入力してshift＋enterで実行
+(11)コード欄に以下ファイルの内容を入力してshift＋enterで実行
 　4_convertTflite.py
 Tfliteファイルに変換します。変換したファイルはcnn.tfliteという名前で保存されます。
 cnn.tfliteはedge TPU（Coral)用のファイルには変更できません
-(8)コード欄に以下ファイルの内容を入力してshift＋enterで実行
+(12)コード欄に以下ファイルの内容を入力してshift＋enterで実行
 　5_convertTflite.py
 整数量子化してTfliteファイルに変換します。。変換したファイルはcnn_IntegerQuantization_edgetpu.tfliteという名前で保存されます
 cnn_IntegerQuantization_edgetpu.tfliteはedge TPU（Coral)用のファイルには変更できます
-(9)コード欄に以下を入力してshift＋enterで実行
+(13)コード欄に以下を入力してshift＋enterで実行
 /***************************************************************/
 !curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 !echo "deb https://packages.cloud.google.com/apt coral-edgetpu-stable main" | tee /etc/apt/sources.list.d/coral-edgetpu.list
 !apt-get update
 !apt-get install edgetpu-compiler	
 /***************************************************************/
-(10)コード欄に以下を入力してshift＋enterで実行
+(14)コード欄に以下を入力してshift＋enterで実行
 /***************************************************************/
 !edgetpu_compiler cnn_IntegerQuantization.tflite
 /***************************************************************/
-(11)左のファイルアイコンをクリックし、以下ファイルが出来ていることを確認します
+(15)左のファイルアイコンをクリックし、以下ファイルが出来ていることを確認します
 　cnn.tflite
 　cnn_IntegerQuantization.tflite
 　cnn_IntegerQuantization_edgetpu.tflite
 ファイル表示がすぐに更新されないことがあります、そういう時は一度ファイル欄を閉じて再度開きましょう
-(12)以下ファイルをダウンロードします。ファイル欄のファイル右横をクリックし、ダウンロードを選択します
+(16)以下ファイルをダウンロードします。ファイル欄のファイル右横をクリックし、ダウンロードを選択します
 　cnn.tflite
 　cnn_IntegerQuantization.tflite
 　cnn_IntegerQuantization_edgetpu.tflite
@@ -534,14 +553,28 @@ Webブラウザはリアルタイムチャート作成にはd3.jsをベースに
 宿題
 　送信しているデータをSenor HATの温度、湿度、気圧センサーの値に変更してください
 
-4_ComeraStreaming
+4_CameraStreaming
 カメラ動画をWebブラウザに表示します。
-カメラ動画はOpenCvでフレームに切り取られてレスポンスとして逐次送信されます。
+カメラ動画はOpenCvでフレームに切り取られてJPEG形式のバイナリデータで、
+　レスポンスとして逐次送信されます(multipart/x-mixed-replaceを使用）。
+multipart/x-mixed-replaceとは
+HTTP応答によりサーバーが任意のタイミングで複数の文書を返し、紙芝居的にレンダリングを切り替えさせる仕組みです
+JPEG形式のバイナリデータはgen関数内のyield関数で永遠に出力されます
+yield関数は関数の処理を一旦停止して、戻り値を返すという処理を行います
+return命令に似ていますが、return命令は処理を終了して戻り値を返すので、逐次処理は行なえません
+
+5_CameraGraph
+カメラ動画とグラフをWebブラウザに表示します。
+3_RealTimeGraphと同じようにWebSocketを使ってWebブラウザにデータを送信します。
+温度、湿度、写真をJSON形式にまとめて送信します。
+JSONはJavaScript Object Notationで、標準的なテキストベースの構造データ表現フォーマットです。
+情報に名前（キー）をつけ、階層構造で記述できます。
+例　{{"name":"鈴木", "age":"27"}, {"name":"佐藤", "age":"19"}}
 
 宿題
 　カメラ動画を画像検出した画像に変更してください
 
-5_SQL
+6_SQL
 sqlalchemyをインストールします
 $ ./SqlalChemy_install.sh
 SQLAlchemyはObject Relational Mapper（ORM)ライブラリです。
@@ -561,30 +594,22 @@ Githubアカウントがないのでまずはローカルレポジトリを使�
 VSCodeにもGit関連のExtensionを追加
 (1)Git Hisotry     Gitのコミット履歴を見やすく表示することができる
 (2)GitLens         ブランチ一覧、コミットの一覧、差分を表示することができる（次世代はGit Blame）
-
 git使ってみる
 VSCodeでWorkフォルダを開く
 ターミナルで
 $ git --verison
 git version 2.20.1
 gitのバージョンは2.20.1であることがわかる
-
 Gitリポジトリを作成する
 $ git init
-
 現在の状態を確認する
 $ git status
-
 ファイルをインデックスに追加する
 $ git add .
-
 ローカルリポジトリにコミットする -mはコメントオプション
 $ git commit -m "add new files"
-
 現在の状態を確認する
 $ git status
-
 ローカルレポジトリの修正を元に戻す
 $ git checkout [ファイル名]
-
 ファイル編集し、インデックス追加、コミット、ステータス確認を実施する

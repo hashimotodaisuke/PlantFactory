@@ -1,0 +1,42 @@
+<html>
+<head>
+  <title>graph test</title>
+</head>
+<body>
+  <h1>Graph and Camera</h1>
+  <p>グラフ</p>
+  <div id="graph" class="epoch" style="height: 200px;"></div>
+  <div id="tempature_value"></div>
+  <div id="humidity_value"></div>
+  <p>カメラ</p>
+  <img id="img1" width="200" height="200">
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/d3.min.v3.5.17.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/epoch.min.v0.8.4.js') }}"></script>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/epoch.min.v0.8.4.css') }}">
+  <script type="text/javascript">
+  var ws = new WebSocket("ws://localhost:5000/publish");
+  var data = [
+      { label: "y", values: [] },
+      { label: "y", values: [] },
+    ];
+  var lineChart = $('#graph').epoch({
+    type: 'time.line',
+    data: data,
+    axes: ['left', 'right', 'bottom']
+  });
+  ws.onmessage = function(msg) {
+    var all_data = JSON.parse(msg.data);
+    var current = [];
+    current.push(all_data[0]);
+    current.push(all_data[1]);    
+    lineChart.push(current);
+    var camera_image = [];
+    camera_image.push(all_data[2].image);
+    document.getElementById('img1').src = camera_image;
+    document.getElementById('tempature_value').textContent = "tempature="+all_data[0].y;
+    document.getElementById('humidity_value').textContent = "humidity="+all_data[1].y;
+  };
+  </script>
+</body>
+</html>
