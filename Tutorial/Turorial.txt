@@ -1,4 +1,4 @@
-植物工場向けラズパイチュートリアル　　2021/06/21
+植物工場向けラズパイチュートリアル　　2021/06/23
 
 １．キーボードの確認をしよう
 Geanyを起動
@@ -585,6 +585,199 @@ https://qiita.com/kiyokiyo_kzsby/items/0184973e9de0ea9011ed
 
 ２０．ＡＷＳを使ったプログラムをデバッグする
 /home/pi/Work/Tutorial/AWS
+
+(1)以下URLからAWSにログインする
+https://745239123570.signin.aws.amazon.com/console
+(2)以下URLからAWS IoTの設定画面を開く
+https://console.aws.amazon.com/iot/home?region=us-east-1#/
+右上の地域選択で以下を選択
+　米国東部 (バージニア北部)us-east-1
+(3)デバイスのポリシーを作成する
+　左ウィンドウの"安全性"をクリックし、ツリーが開いたところで"ポリシー"をクリックする
+
+　参考：
+　ポリシーはデバイスに許可されるアクションを定義する
+　　Connect　　接続
+　　Publish　　メッセージの送信
+　　Receive　　メッセージの受信
+　　　などなど、詳細は以下URLを参照
+　　　　https://docs.aws.amazon.com/ja_jp/iot/latest/developerguide/example-iot-policies-elements.html
+
+(4)"作成"をクリックし、名前を入力する。名前はRaspi+自身の苗字+Policyとする
+　例　橋本の場合　RaspiHashimotoPolicy
+(5)項目"アクション"入力する
+　　iot:Connect
+(6)そうすると"リソース ARN"項目が自動で入力される
+　arn:aws:iot:us-east-1:745239123570:client/replaceWithAClientId
+　
+　us-east-1　　　は　リージョンコード
+　745239123570 　は　アカウントコード
+
+(7)項目"効果"の有効チェックボックスにチェックを入れる
+(8)本来、ステートメント追加をしていき、アクション、リソース ARN、効果を入力していくのだが面倒なので、
+　一旦作成ボタンを押下し、後から編集する
+(9)成功と表示されるので作成したポリシー"Raspi+自身の苗字+Policy"をクリックし、開く
+(10)ポリシードキュメントの編集をクリックし、現在のポリシーを消去し、以下ポリシーを入力する
+/******************************************************************************************************/
+{
+   "Version": "2012-10-17",
+   "Statement": [{
+         "Effect": "Allow",
+         "Action": "iot:Connect",
+         "Resource": "arn:aws:iot:us-east-1:745239123570:client/デバイス名"
+      },
+      {
+         "Effect": "Allow",
+         "Action": "iot:Publish",
+         "Resource": [
+            "arn:aws:iot:us-east-1:745239123570:topic/$aws/things/デバイス名/shadow/update",
+            "arn:aws:iot:us-east-1:745239123570:topic/$aws/things/デバイス名/shadow/delete",
+            "arn:aws:iot:us-east-1:745239123570:topic/$aws/things/デバイス名/shadow/get"
+         ]
+      },
+      {
+         "Effect": "Allow",
+         "Action": "iot:Receive",
+         "Resource": [
+            "arn:aws:iot:us-east-1:745239123570:topic/$aws/things/デバイス名/shadow/update/accepted",
+            "arn:aws:iot:us-east-1:745239123570:topic/$aws/things/デバイス名/shadow/delete/accepted",
+            "arn:aws:iot:us-east-1:745239123570:topic/$aws/things/デバイス名/shadow/get/accepted",
+            "arn:aws:iot:us-east-1:745239123570:topic/$aws/things/デバイス名/shadow/update/rejected",
+            "arn:aws:iot:us-east-1:745239123570:topic/$aws/things/デバイス名/shadow/delete/rejected"
+         ]
+      },
+      {
+         "Effect": "Allow",
+         "Action": "iot:Subscribe",
+         "Resource": [
+            "arn:aws:iot:us-east-1:745239123570:topicfilter/$aws/things/デバイス名/shadow/update/accepted",
+            "arn:aws:iot:us-east-1:745239123570:topicfilter/$aws/things/デバイス名/shadow/delete/accepted",
+            "arn:aws:iot:us-east-1:745239123570:topicfilter/$aws/things/デバイス名/shadow/get/accepted",
+            "arn:aws:iot:us-east-1:745239123570:topicfilter/$aws/things/デバイス名/shadow/update/rejected",
+            "arn:aws:iot:us-east-1:745239123570:topicfilter/$aws/things/デバイス名/shadow/delete/rejected"
+         ]
+      },
+      {
+         "Effect": "Allow",
+         "Action": [
+            "iot:GetThingShadow",
+            "iot:UpdateThingShadow",
+            "iot:DeleteThingShadow"
+         ],
+         "Resource": "arn:aws:iot:us-east-1:745239123570:thing/デバイス名"
+
+      }
+   ]
+}
+/******************************************************************************************************/
+(11)入力したポリシーを編集する
+　リージョンコード、アカウントコードはaws:us-east-1、745239123570そのままでOK
+　デバイス名をRaspi+自身の苗字に変更する（15か所）。　例　RaspiHashimoto
+(12)"新しいバージョンとして保存"をクリックして保存する
+　構文に間違いがあるとエラー表示される。成功表示を確認する
+(13) AWS IoT モノ、証明書、およびプライベートキーの作成を行う
+　AWS IoTウィンドウで管理→モノを選択
+　登録をクリックし、"AWS IoT モノを作成する" ページで、"単一のモノを作成する"を選択する
+　名前にRaspi+自身の苗字を入力する。　例　RaspiHashimoto
+　他は入力しないで次へをクリック
+(14)"証明書を作成"をクリック
+　証明書、およびプライベートキーはこのタイミングでしかダウンロード出来ないので注意
+　証明書、パブリックキー、プライベートキーそれぞれをダウンロード
+(15)そのまま、そのページでサーバー認証用のCA証明書をダウロードする
+　AWS IoT のルート CA	ダウンロードをクリックすると以下URLにジャンプ
+　　https://docs.aws.amazon.com/ja_jp/iot/latest/developerguide/server-authentication.html?icmpid=docs_iot_console#server-authentication-certs
+　　RSA 2048 ビットキー:Amazon Root CA 1を右クリックし、名前を付けてリンク先を保存を選択
+　　　AmazonRootCA1.pemという名前で保存される
+　　サーバー認証用の CA 証明書（認証局証明書、いわゆるルート証明書）のページは閉じる
+(16)証明書、パブリックキー、プライベートキーのページに戻り、有効化ボタンを押下
+(17)"ポリシーをアタッチ"をクリック
+(18)先に作ったポリシー"Raspi+自身の苗字+Policy"のチェックボックスにチェックを入れ、"モノの登録"をクリック
+　これでモノの登録は完了。ラズパイ側の操作にうつる
+
+(19)先にダウンロードした証明書、パブリックキー、プライベートキー、CA証明書の4ファイルを以下にフォルダにコピーする
+  AWS/1_SensorMonitor
+(20)VS Codeを開いて、1_SensorMonitorをフォルダとして開く
+(21)ターミナルを開いて必要ライブラリのインストールを行う
+$ ./AwsIoTPythonSdk_install.sh
+(22)1_SensorMonitor.pyを以下のように編集する
+　16行目　証明書ファイル名(拡張子crt)               ->  証明書のファイル名。 　　　　　例　74cadb81af-certificate.pem.crt
+　17行目　プライベートキーファイル名(拡張子key)     -> プライベートキーファイル名。　　例　74cadb81af-private.pem.key
+　19行目　デバイス名                                -> デバイス名　Raspi+自身の苗字。　例　RaspiHashimoto
+　20行目　デバイス名                                -> デバイス名　Raspi+自身の苗字。　例　RaspiHashimoto
+
+　参考
+　14行目にはカスタムエンドポイント、15行目にはCA証明書の記載が必要。ただし、共通なのでサンプルコードには記載ずみ。
+　　カスタムエンドポイントはAWS IoTウィンドウで管理→モノを選択後、相互作用タブを開くと以下のように3行目に記載されている
+　　　　/************************************************************************************/
+　　　　HTTPS
+　　　　　この Rest API エンドポイントを使用して Thing Shadow を更新します。 詳細はこちら
+　　　　　a36ljqkeccaktx-ats.iot.us-east-1.amazonaws.com
+　　　　/************************************************************************************/
+　　CA証明書は先に以下URLより入手したRSA 2048 ビットキー:Amazon Root CA 1である
+　　　https://docs.aws.amazon.com/ja_jp/iot/latest/developerguide/server-authentication.html?icmpid=docs_iot_console#server-authentication-certs
+
+(23)Sense HAT Emulatorを開く
+　左上ラズパイアイコン->プログラミング->Sense HAT Emulator
+(24)VS Code上の1_SensorMonitor.pyを実行
+　5秒毎にAWSに温度、湿度をアップデートするログが表示される
+　確認を終了したら処理を終了させる。ターミナル上でctrl+c
+　サーバー側で受け取ったデータでどのようにアクションするか設置していく
+　AWS側の設定に戻る
+
+(25)トピックとサブスクリプションの作成
+　トピック　　　　　　　配信対象をグルーピングし、配信対象に一斉に通知を配信するための機能。プロトコルのタイプ（FIFO、スタンダード選ぶだけ）
+　サブスクリプション　　作成したトピックと配信対象のエンドポイントを紐づけるデータ。プロトコルの詳細を決定（HTTP、SMS、Eメール、）
+　パブリッシュ　　　　　サブスクリプションに従って通知を発信すること
+
+　以下URLにアクセス
+　https://console.aws.amazon.com/sns/v3/home?region=us-east-1#/topics
+　"トピックの作成"をクリック
+　スタンダードを選択し、名前、表示名を以下のように入力
+　　名前　　Raspi+自身の苗字+Topic　　　　　　　例　RaspiHashimotoTopic
+　　表示名　Raspi+自身の苗字+スペースTopic　　　例　RaspiHashimoto Topic
+　"トピックの作成"をクリック
+
+　トピックページを表示するので、"サブスクリプションの作成"をクリック
+　プロトコル欄でEメールを選択
+　エンドポイント欄に現在受信できるメールアドレスを入力する。会社のメールアドレスでも問題ない。
+　上記登録したメールアドレスにサブスクリプション承認のメールがくるので、メール内のConfirm Subscriptionをクリック
+　
+　これでトピックとサブスクリプションの作成は完了
+
+(26)AWS IoT ルールを作成する
+　ラズパイからサーバに送信する湿度が50%以下になったらアラートメールを出す仕様にする
+　以下URLを開く。（または、すでに開いているAWS IoTに戻る）
+　　https://console.aws.amazon.com/iot/home?region=us-east-1#/
+
+　左ウィンドウの"ACT"をクリックし、ツリーが開いたところで"ルール"をクリックする
+　ルールの作成をクリック
+　名前を以下のように入力する
+　　Raspi+自身の苗字+Rule　　　　　　　例　RaspiHashimotoRule
+　説明欄は適当に以下入力する
+　　ラズパイから温度、湿度データを受信したときに実行するルール
+　ルールクエリステートメントに以下を入力する。デバイス名はRaspi+自身の苗字（例 RaspiHashimoto)に変えること
+　　SELECT * FROM '$aws/things/デバイス名/shadow/update/accepted' WHERE state.reported.moisture < 50
+
+　　state.reported.moistureは湿度データ。データ構造はラズパイ側のプログラムが定義している
+　　　state _ reported __  tempature
+                        |_ moisture
+　　　湿度が50度以下になったらアクションを実行するというルールになる
+　次にアクションを登録する。"アクションの追加"をクリック
+　"SNS プッシュ通知としてメッセージを送信する"を選択し、"アクションの設定"をクリック
+　SNSターゲットで先に作成したトピックを選択
+　メッセージ形式でRAWを選択
+　ロールを新規作成。名前は以下のようにする
+　　Raspi+自身の苗字+Role　例　RaspiHashimotoRole
+
+　これでルール設定は完了。ラズパイ側の操作にうつる
+
+(27)Sense HAT Emulatorを開く
+　左上ラズパイアイコン->プログラミング->Sense HAT Emulator
+(28)VS Code上の1_SensorMonitor.pyを実行
+　5秒毎にAWSに温度、湿度をアップデートするログが表示される
+　Sense HAT Emulatorの湿度を50%以下にすると登録されたメールアドレスにアラートメールが送信される
+　メール受信を確認して終了
+
 
 ２１．VSCodeからGitを使ってみる
 コード管理はGit使いたい
