@@ -1,0 +1,63 @@
+<html>
+<head>
+  <title>graph test</title>
+</head>
+<body>
+  <h1>Real time chart</h1>
+  <p>
+  <div style="width:100px; height:2px; background:white;"></div>
+  Temperature：<div style="width:100px; height:2px; background:blue;"></div>
+  Humidity   ：<div style="width:100px; height:2px; background:orange;"></div>
+  Pressure   ：<div style="width:100px; height:2px; background:green;"></div>
+  </p>
+  <div id="graph" class="epoch" style="height: 200px;"></div>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/d3.min.v3.5.17.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/epoch.min.v0.8.4.js') }}"></script>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/epoch.min.v0.8.4.css') }}">
+  <script type="text/javascript">
+  var ws = new WebSocket("ws://localhost:5000/publish");
+  var TemperatureRange = [-30, 105];
+  var HumidityRange = [0, 100];
+  var PressureRange = [260, 1260];
+  var data = [
+      { label: "Temperature", range:TemperatureRange, values: [] },
+      { label: "Humidity", range:HumidityRange, values: [] }, 
+      { label: "Pressure", range:PressureRange, values: [] },
+    ];
+  var lineChart = $('#graph').epoch({
+    type: 'time.line',
+    data: data,
+    //利用軸の選択
+    axes: ['left', 'right', 'bottom'],
+    //フレームレート
+    fps: 24,
+    //軸の範囲
+    range: {
+      left: TemperatureRange,
+      right: HumidityRange,
+    },
+    // キューサイズ
+    queueSize: 1,
+    // ウィンドウサイズ
+    windowSize: 20,
+    // 目盛りの設定。 timeは間隔秒数、他は目盛りの数
+    ticks: {time: 5, right: 5, left: 5},
+    // 目盛りの書式
+    tickFormats: {
+      left: function (d) {
+        // toFixedで小数点固定
+        return (d).toFixed(1) + "℃";
+      },
+      right: function (d) {
+        return (d).toFixed(1) + "%";
+      }
+    }
+  });
+  ws.onmessage = function(msg) {
+    var current = JSON.parse(msg.data);
+    lineChart.push(current);
+  };
+  </script>
+</body>
+</html>
